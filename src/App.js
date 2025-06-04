@@ -1,66 +1,67 @@
 import styles from "./App.module.css";
 import { useState } from "react";
 
-const numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-const operation = ["+", "-", "C", "="];
+const NUMS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+const OPERATIONS = ["+", "-", "C", "="];
 
 const App = () => {
-  const [displayValue, setDisplayValue] = useState("");
-  const [firstNumber, setFirstNumber] = useState(null);
-  const [currentOperation, setCurrentOperation] = useState(null);
+  const [operand1, setOperand1] = useState("");
+  const [operand2, setOperand2] = useState("");
+  const [operator, setOperator] = useState("");
+  const [isResult, setIsResult] = useState(false);
 
   const handleClick = (value) => {
     if (value === "C") {
-      setDisplayValue("");
-      setFirstNumber(null);
-      setCurrentOperation(null);
+      setOperand1("");
+      setOperand2("");
+      setOperator("");
+      setIsResult("");
       return;
     }
 
     if (value === "+" || value === "-") {
-      setFirstNumber(Number(displayValue));
-      setCurrentOperation(value);
-      setDisplayValue("");
-      setIsResultShow(false);
+      if (operand1 !== "") {
+        setOperator(value);
+        setIsResult(false);
+      }
       return;
     }
 
     if (value === "=") {
-      if (firstNumber !== null && currentOperation && displayValue !== "") {
-        const secondNumber = Number(displayValue);
-        let result;
-
-        if (currentOperation === "+") {
-          result = firstNumber + secondNumber;
-        } else if (currentOperation === "-") {
-          result = firstNumber - secondNumber;
-        }
-
-        setDisplayValue(String(result));
-        setFirstNumber(null);
-        setCurrentOperation(null);
+      if (operand1 && operator && operand2) {
+        const result =
+          operator === "+"
+            ? parseInt(operand1) + parseInt(operand2)
+            : parseInt(operand1) - parseInt(operand2);
+        setOperand1(String(result));
+        setOperand2("");
+        setOperator("");
+        setIsResult(true);
       }
-      setIsResultShow(true);
       return;
     }
 
-    setDisplayValue(displayValue + value);
+    if (!operator) {
+      setOperand1((prev) => prev + value);
+    } else {
+      setOperand2((prev) => prev + value);
+    }
   };
 
-  const [isResultShow, setIsResultShow] = useState(false);
+  const display = `${operand1}${operator}${operand2}`;
 
   return (
     <div className={styles.calculator}>
-      <div className={`${styles.display} ${isResultShow ? styles.result : ""}`}>
-        {displayValue}
+      <div className={`${styles.display} ${isResult ? styles.result : ""}`}>
+        {display || "0"}
       </div>
       <div className={styles.button}>
-        {numbers.map((num) => (
+        {NUMS.map((num) => (
           <button key={num} onClick={() => handleClick(num)}>
             {num}
           </button>
         ))}
-        {operation.map((op) => (
+        {OPERATIONS.map((op) => (
           <button key={op} onClick={() => handleClick(op)}>
             {op}
           </button>
